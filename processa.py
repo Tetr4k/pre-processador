@@ -1,14 +1,41 @@
-import sys
+import sys, os, platform
 
-nomesArquivos = sys.argv
-nomesArquivos.pop(0)
+sistema = platform.system() #Identifica sistema
 
+nomesArquivos = sys.argv    #Acessa parametros passados
+nomesArquivos.pop(0)        #Remove primeiro parametro("processa.py")
+
+# Faz o pre-processamento para cada
+# arquivo passado por parametro.
 for nomeArquivo in nomesArquivos:
-    arquivo = open(nomeArquivo, 'r')
-    print(arquivo.readlines())
+    print("Indentificando sistema")
+    if sistema == "Windows":#Faz Backup do arquivo em Windows
+        os.system("copy "+nomeArquivo+" backup")
+        os.system("cls")
+    elif sistema == "Linux":#Faz Backup do arquivo em Linux
+        os.system("cp "+nomeArquivo+" backup")
+        os.system("clear")
+    else:
+        print("Sistema não identificado")
+        exit()
+    print(sistema)
 
-    
-    arquivo.close()
+    arquivo = open(nomeArquivo, 'r')    #Abre arquivo para leitura
+    buffer = arquivo.readlines()        #Pega o conteudo do arquivo
+    arquivo.close()                     #Fecha o arquivo
+
+
+
+    print(buffer)
+    #Manipula o buffer
+    buffer.reverse()                    #Palhaçada
+
+
+
+    arquivo = open(nomeArquivo, 'w')    #Abre arquivo para escrita
+    arquivo.writelines(buffer)          #Escreve o conteudo do arquivo
+    arquivo.close()                     #Fecha o arquivo
+print("Fim de execução")
 
 #Includes
 
