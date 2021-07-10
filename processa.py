@@ -1,6 +1,7 @@
 import sys, os, platform
 
 sistema = platform.system() #Identifica sistema
+os.system("mkdir backup")
 
 nomesArquivos = sys.argv    #Acessa parametros passados
 nomesArquivos.pop(0)        #Remove primeiro parametro("processa.py")
@@ -8,17 +9,13 @@ nomesArquivos.pop(0)        #Remove primeiro parametro("processa.py")
 # Faz o pre-processamento para cada
 # arquivo passado por parametro.
 for nomeArquivo in nomesArquivos:
-    print("Indentificando sistema")
     if sistema == "Windows":#Faz Backup do arquivo em Windows
         os.system("copy "+nomeArquivo+" backup")
-        os.system("cls")
     elif sistema == "Linux":#Faz Backup do arquivo em Linux
         os.system("cp "+nomeArquivo+" backup")
-        os.system("clear")
     else:
         print("Sistema não identificado")
         exit()
-    print(sistema)
 
     arquivo = open(nomeArquivo, 'r')    #Abre arquivo para leitura
     buffer = arquivo.readlines()        #Pega o conteudo do arquivo
