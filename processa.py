@@ -1,4 +1,12 @@
-import sys, os, platform
+import sys, os, platform, re
+
+#funcoes
+
+def tiraComentario(linha):
+    linha = re.sub("//(.*)\\n", "", linha)
+    return linha
+
+#######
 
 sistema = platform.system() #Identifica sistema
 os.system("mkdir backup")
@@ -21,13 +29,22 @@ for nomeArquivo in nomesArquivos:
     buffer = arquivo.readlines()        #Pega o conteudo do arquivo
     arquivo.close()                     #Fecha o arquivo
 
+    #Manipulacao do buffer
+                #Includes
+                #Defines
+
+    buffer = map(tiraComentario, buffer)#Remove comentario do tipo "//"
+#    for linha in buffer:
+#        print("antes:", linha)
+#        linha = re.sub("//(.*)\\n", "", linha)
+#        print("depois:", linha)
+    
+                #Remove comentario do tipo "/*"
+                #Remove "/n"s
+                #Remove " "s
 
 
-    print(buffer)
-    #Manipula o buffer
-    buffer.reverse()                    #Palhaçada
-
-
+    #buffer.reverse()                    #Palhaçada
 
     arquivo = open(nomeArquivo, 'w')    #Abre arquivo para escrita
     arquivo.writelines(buffer)          #Escreve o conteudo do arquivo
