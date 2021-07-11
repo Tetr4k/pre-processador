@@ -1,50 +1,57 @@
 import sys, os, platform, re
-
-#funcoes
-
-def tiraComentario(linha):
-    linha = re.sub("//(.*)\\n", "", linha)
-    return linha
-
-#######
-
-sistema = platform.system() #Identifica sistema
+def fazIncludeAspas(codigo):
+    for linha in codigo:
+        include = re.search("#include\s*\"[\d\w]*\.[ch]\"\s*\n", linha)
+        if include and include.group() == linha:
+            arquivo = re.search("(?<=\")[\d\w]*\.[ch](?=\")", include.group()).group()
+            print(arquivo)#Fazer -> buscar arquivo no compilador e incluir
+    return codigo
+def fazIncludeMQMQ(codigo):
+    for linha in codigo:
+        include = re.search("#include\s*<[\d\w]*\.[ch]>\s*\n", linha)
+        if include and include.group() == linha:
+            arquivo = re.search("(?<=<)[\d\w]*\.[ch](?=>)", include.group()).group()
+            print(arquivo)#Fazer -> buscar arquivo no projeto e incluir
+    return codigo
+def tiraComentarioLinha(linha):                         #Funcao para remover comentarios de linha
+    novaLinha = re.sub("//(.*)\\n", "", linha)          #Substitui comentario de linha por "" usando regex
+    return novaLinha                                    #Retorna nova linha
+def tiraQuebras(codigo):#Fazer -> não feito
+    #texto = re.sub()
+    return codigo
+def tiraComentarioParagrafo(codigo):#Fazer -> possiveis erros
+    codigo = re.sub("/\*(.*)\*/", "", codigo)
+    return codigo
+sistema = platform.system()                             #Identifica sistema
 os.system("mkdir backup")
-
-nomesArquivos = sys.argv    #Acessa parametros passados
-nomesArquivos.pop(0)        #Remove primeiro parametro("processa.py")
-
-# Faz o pre-processamento para cada
-# arquivo passado por parametro.
-for nomeArquivo in nomesArquivos:
-    if sistema == "Windows":#Faz Backup do arquivo em Windows
+nomesArquivos = sys.argv                                #Acessa parametros passados
+nomesArquivos.pop(0)                                    #Remove primeiro parametro("processa.py")
+for nomeArquivo in nomesArquivos:                       #Faz o pre-processamento para cada arquivo passado por parametro. 
+    if sistema == "Windows":                            #Faz Backup do arquivo em Windows
         os.system("copy "+nomeArquivo+" backup")
-    elif sistema == "Linux":#Faz Backup do arquivo em Linux
+    elif sistema == "Linux":                            #Faz Backup do arquivo em Linux
         os.system("cp "+nomeArquivo+" backup")
     else:
         print("Sistema não identificado")
         exit()
+    arquivo = open(nomeArquivo, 'r')                    #Abre arquivo para leitura
+    buffer = arquivo.readlines()                        #Pega o conteudo do arquivo
+    arquivo.close()                                     #Fecha o arquivo
 
-    arquivo = open(nomeArquivo, 'r')    #Abre arquivo para leitura
-    buffer = arquivo.readlines()        #Pega o conteudo do arquivo
-    arquivo.close()                     #Fecha o arquivo
-
-    #Manipulacao do buffer
-                #Includes
-                #Defines
-
-    buffer = map(tiraComentario, buffer)#Remove comentario do tipo "//"
-#    for linha in buffer:
-#        print("antes:", linha)
-#        linha = re.sub("//(.*)\\n", "", linha)
-#        print("depois:", linha)
     
-                #Remove comentario do tipo "/*"
-                #Remove "/n"s
+    #Manipulacao do buffer
+    #Includes compilador 
+    buffer = fazIncludeAspas(buffer)                       #Includes projeto 
+    buffer = fazIncludeMQMQ(buffer)
+    #Defines
+
+    buffer = map(tiraComentarioLinha, buffer)           #Remove comentario do tipo "//" de cada linha
+
+    #buffer = tiraQuebras(buffer)                       #Remove "/n"s
+    
+    #buffer = tiraComentarioParagrafo(buffer)           #Remove comentario do tipo "/*"
+                
                 #Remove " "s
-
-
-    #buffer.reverse()                    #Palhaçada
 
     arquivo = open(nomeArquivo, 'w')    #Abre arquivo para escrita
     arquivo.writelines(buffer)          #Escreve o conteudo do arquivo
@@ -56,6 +63,11 @@ print("Fim de execução")
 #Includes de Includes?
 
 # Enquanto tiver include no arquivo{
+#   Para cada linha{
+#       Testa regex{
+#           se deu match inclui
+#       }
+#   }
 #   busca o primeiro include
 #   usa ""? -> procura na pasta do projeto
 #   usa <>? -> procura na pasta do gcc
