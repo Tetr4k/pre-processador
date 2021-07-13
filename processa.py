@@ -1,19 +1,25 @@
 import sys, os, platform, re
+
 def fazIncludeAspas(codigo):
-    for linha in codigo:
-        include = re.search("#include\s*\"[\d\w]*\.[ch]\"\s*\n", linha)
-        if include and include.group() == linha:
-            nomeArquivo = re.search("(?<=\")[\d\w]*\.[ch](?=\")", include.group()).group()
-            arquivo = open(nomeArquivo, 'r')
-            if not arquivo:
-                #Procura na pasta do compilador
-                print("pra tirar erro")
-            conteudo = arquivo.readlines()
-            arquivo.close()
-            for linha2 in codigo:
-                conteudo.append(linha2)
-            codigo = conteudo
-    return codigo
+    buffer = []                                                                             #Buffer vazio
+    while codigo:                                                                           #Enquanto tem linha
+        linha = codigo[0]                                                                   #Copia primeira linha
+        codigo.pop(0)                                                                       #Remove primeira linha
+        include = re.search("#include\s*\"[\d\w]*\.[ch]\"\s*\n", linha)                     #Expressão regular para verificar se tem include na linha
+        if include and include.group() == linha:                                            #Se tiver e for valido
+            nomeArquivo = re.search("(?<=\")[\d\w]*\.[ch](?=\")", include.group()).group()  #Pega nome do arquivo incluido
+            #verificar se arquivo existe e procurar no path INCLUDE
+            arquivo = open(nomeArquivo, 'r')                                                #Abre arquivo se existir na pasta
+            conteudo = arquivo.readlines()                                                  #Le conteudo
+            arquivo.close()                                                                 #Fecha arquivo
+            conteudo = fazIncludeAspas(conteudo)                                            #Inclui arquivos incluidos no arquivo incluido com """s
+            #conteudo = fazIncludeMQMQ(conteudo)                                            #Inclui arquivos incluidos no arquivo incluido com "<" e ">"
+            for linhaConteudo in conteudo:                                                  #Copia pro buffer conteudo do include
+                buffer.append(linhaConteudo)
+        else:                                                                               #Se não tiver ou não for valido
+            buffer.append(linha)                                                            #Mantém a linha
+    return buffer                                                                           #Retorna codigo resultado
+
 # def fazIncludeMQMQ(codigo):
 #     for linha in codigo:
 #         include = re.search("#include\s*<[\d\w]*\.[ch]>\s*\n", linha)
@@ -27,19 +33,34 @@ def fazIncludeAspas(codigo):
 #             codigo.clear()
 #             codigo = conteudo
 #     return codigo
+
 def tiraComentarioLinha(linha):                         #Funcao para remover comentarios de linha
-    novaLinha = re.sub("//(.*)\\n", "", linha)          #Substitui comentario de linha por "" usando regex
+    #VALIDAR """s
+    novaLinha = re.sub("//(.*)(?=\\n)", "", linha)      #Substitui comentario de linha por "" usando regex
     return novaLinha                                    #Retorna nova linha
-def tiraQuebras(codigo):#Fazer -> não feito
-    #texto = re.sub()
-    return codigo
-# def tiraComentarioParagrafo(codigo):#Fazer -> possiveis erros
-#     codigo = re.sub("/\*(.*)\*/", "", codigo)
-#     return codigo
+
+def preprocessa(buffer):#Manipulacao do buffer
+#Para cada include com Aspas no arquivo, se o arquivo incluido existir e estiver na pasta, copia seu conteudo, se não estiver na pasta, procura em INCLUDE, se o arquivo não existir, mantém o erro de sintaxe.
+    buffer = fazIncludeAspas(buffer)            #Includes ""
+#LOGICA COLCHETES ANGULARES
+    #buffer = fazIncludeMQMQ(buffer)            #Includes <> 
+#LOGICA DEFINES
+    #                                           #Defines
+#Para cada linha, se a linha tem // valido(fora de "" validas), apaga conteudo até \n
+    buffer = map(tiraComentarioLinha, buffer)   #Remove comentario do tipo "//" de cada linha
+#Para cada linha, se a linha não tiver define, remove o ultimo "\n"
+    #buffer = tiraQuebras(buffer)               #Remove "/n"s
+#LOGICA REMOVER /**/
+    #buffer = tiraComentarioParagrafo(buffer)   #Remove comentario do tipo "/*"
+#LOGICA REMOVER " "s
+    #                                           #Remove " "s
+    return buffer                               #Retorna conteudo após manipulação
+
 sistema = platform.system()                             #Identifica sistema
 os.system("mkdir backup")
 nomesArquivos = sys.argv                                #Acessa parametros passados
 nomesArquivos.pop(0)                                    #Remove primeiro parametro("processa.py")
+
 for nomeArquivo in nomesArquivos:                       #Faz o pre-processamento para cada arquivo passado por parametro. 
     if sistema == "Windows":                            #Faz Backup do arquivo em Windows
         os.system("copy "+nomeArquivo+" backup")
@@ -49,61 +70,24 @@ for nomeArquivo in nomesArquivos:                       #Faz o pre-processamento
         print("Sistema não identificado")
         exit()
     arquivo = open(nomeArquivo, 'r')                    #Abre arquivo para leitura
-    buffer = arquivo.readlines()                        #Pega o conteudo do arquivo
+    codigo = arquivo.readlines()                        #Pega o conteudo do arquivo
     arquivo.close()                                     #Fecha o arquivo
-
-    
-    #Manipulacao do buffer
-    
-    buffer = fazIncludeAspas(buffer)                       #Includes ""
-    #buffer = fazIncludeMQMQ(buffer)                       #Includes <> 
-    
-    #Defines
-    buffer = map(tiraComentarioLinha, buffer)           #Remove comentario do tipo "//" de cada linha
-
-    #buffer = tiraQuebras(buffer)                       #Remove "/n"s
-    
-    #buffer = tiraComentarioParagrafo(buffer)           #Remove comentario do tipo "/*"
-                
-                #Remove " "s
-
+    codigo = preprocessa(codigo)
     arquivo = open(nomeArquivo, 'w')    #Abre arquivo para escrita
-    arquivo.writelines(buffer)          #Escreve o conteudo do arquivo
+    arquivo.writelines(codigo)          #Escreve o conteudo do arquivo
     arquivo.close()                     #Fecha o arquivo
-print("Fim de execução")
-
-#Includes
-
-#Includes de Includes?
-
-# Enquanto tiver include no arquivo{
-#   Para cada linha{
-#       Testa regex{
-#           se deu match inclui
-#       }
-#   }
-#   busca o primeiro include
-#   usa ""? -> procura na pasta do projeto
-#   usa <>? -> procura na pasta do gcc
-#   inclui o conteudo
-# }
 
 #defines 
-# Sobre os defines, é importante considerar macros também.
-# como assim macros?????
+# "Sobre os defines, é importante considerar macros também".
+# COMO ASSIM MACROS?????
 
-#Remover comentarios
+#Forma entre aspas	O pré-processador pesquisa por arquivos de inclusão nesta ordem:
+#1) no mesmo diretório que o arquivo que contém a #include instrução.
+#2) nos diretórios dos arquivos de inclusão abertos no momento, na ordem inversa em que foram abertos. A pesquisa começará no diretório do arquivo de inclusão pai e continuará para cima até os diretórios de qualquer arquivo de inclusão avô.
+#3) ao longo do caminho especificado por cada /I opção de compilador.
+#4) ao longo dos caminhos especificados pela variável de INCLUDE ambiente.
 
-# Busca //
-# Se encontrou{
-#   remove conteudo entre // e o /n
-#   Busca //
-# }
-#
-# Busca /*
-# Se encontrou{
-#   remove conteudo até encontrar */
-#   Busca /*
-# }
-
-#Tira quebras de linha e espaços
+#Forma de colchete angular	O pré-processador pesquisa por arquivos de inclusão nesta ordem:
+#Colchete angular --> "<",">"
+#1) ao longo do caminho especificado por cada /I opção de compilador.
+#2) quando a compilação ocorre na linha de comando, ao longo dos caminhos especificados pela INCLUDE variável de ambiente.
