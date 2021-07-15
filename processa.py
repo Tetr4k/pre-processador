@@ -78,6 +78,9 @@ def tiraTabulacao(linha):
 def tiraEspacos(linha):
     novaLinha = re.sub("\s*(?=[-+*\/<>=,&|!(){}\[\];])|(?<=[-+*\/<>=,&|!(){}\[\];])\s*", "", linha)
     return novaLinha
+def tiraQuebras(linha):
+    novaLinha = re.sub("\\n$", "", linha)
+    return novaLinha
 def preprocessa(buffer):#Manipulacao do buffer
 #Para cada include com Aspas no arquivo, se o arquivo incluido existir e estiver na pasta, copia seu conteudo, se não estiver na pasta, procura em INCLUDE, se o arquivo não existir, mantém o erro de sintaxe.
     buffer = fazIncludeAspas(buffer)            #Includes ""
@@ -91,6 +94,8 @@ def preprocessa(buffer):#Manipulacao do buffer
     buffer = map(tiraTabulacao, buffer)         #Remove tabulação de cada linha
 #Para cada linha, remove espaços em volta de -+*\/<>=,&|!(){}[];
     buffer = map(tiraEspacos, buffer)
+#Para cada linha, remove o ultimo "\n"
+    buffer = map(tiraQuebras, buffer)           #Remove "/n" de cada linha, defines ja estarão resolvidos
 #LOGICA REMOVER /**/
     #buffer = tiraComentarioParagrafo(buffer)   #Remove comentario do tipo "/*"
 #LOGICA REMOVER " "s
