@@ -70,7 +70,7 @@ def fazIncludeMQMQ(codigo):
 
 def tiraComentarioLinha(linha):                         #Funcao para remover comentarios de linha
     #VALIDAR """s
-    novaLinha = re.sub("//(.*)(?=\\n)", "", linha)      #Substitui comentario de linha por "" usando regex
+    novaLinha = re.sub("//.*$", "\n", linha)      #Substitui comentario de linha por "" usando regex
     return novaLinha                                    #Retorna nova linha
 def tiraTabulacao(linha):
     novaLinha = re.sub("^\s*", "", linha)
