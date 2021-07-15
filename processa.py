@@ -8,19 +8,53 @@ def fazIncludeAspas(codigo):
         include = re.search("#include\s*\"[\d\w]*\.[ch]\"\s*\n", linha)                     #Expressão regular para verificar se tem include na linha
         if include and include.group() == linha:                                            #Se tiver e for valido
             nomeArquivo = re.search("(?<=\")[\d\w]*\.[ch](?=\")", include.group()).group()  #Pega nome do arquivo incluido
-            #verificar se arquivo existe e procurar no path INCLUDE
+#Forma entre aspas	O pré-processador pesquisa por arquivos de inclusão nesta ordem:
+#1) no mesmo diretório que o arquivo que contém a #include instrução.
+#2) nos diretórios dos arquivos de inclusão abertos no momento, na ordem inversa em que foram abertos. A pesquisa começará no diretório do arquivo de inclusão pai e continuará para cima até os diretórios de qualquer arquivo de inclusão avô.
+#3) ao longo do caminho especificado por cada /I opção de compilador.
+#4) ao longo dos caminhos especificados pela variável de INCLUDE ambiente.
+#verificar se arquivo existe
+            #if True:#arquivoExiste()
             arquivo = open(nomeArquivo, 'r')                                                #Abre arquivo se existir na pasta
+            #else:
+            #    if platform.system() == "Windows":
+            #        arquivo = open("#PASTA/"+nomeArquivo, 'r')#PASTA NO WINDOWS
+            #    elif platform.system() == "Linux":
+            #        arquivo = open("#PASTA/"+nomeArquivo, 'r')#PASTA NO LINUX
+            #    else:
+            #        exit()
             conteudo = arquivo.readlines()                                                  #Le conteudo
             arquivo.close()                                                                 #Fecha arquivo
             conteudo = fazIncludeAspas(conteudo)                                            #Inclui arquivos incluidos no arquivo incluido com """s
-            #conteudo = fazIncludeMQMQ(conteudo)                                            #Inclui arquivos incluidos no arquivo incluido com "<" e ">"
+            conteudo = fazIncludeMQMQ(conteudo)                                            #Inclui arquivos incluidos no arquivo incluido com "<" e ">"
             for linhaConteudo in conteudo:                                                  #Copia pro buffer conteudo do include
                 buffer.append(linhaConteudo)
         else:                                                                               #Se não tiver ou não for valido
             buffer.append(linha)                                                            #Mantém a linha
     return buffer                                                                           #Retorna codigo resultado
 
-# def fazIncludeMQMQ(codigo):
+def fazIncludeMQMQ(codigo):
+    buffer = []                                                                             #Buffer vazio
+    while codigo:                                                                           #Enquanto tem linha
+        linha = codigo[0]                                                                   #Copia primeira linha
+        codigo.pop(0)                                                                       #Remove primeira linha
+        include = re.search("#include\s*<[\d\w]*\.[ch]>\s*\n", linha)                     #Expressão regular para verificar se tem include na linha
+        if include and include.group() == linha:                                            #Se tiver e for valido
+            nomeArquivo = re.search("(?<=<)[\d\w]*\.[ch](?=>)", include.group()).group()  #Pega nome do arquivo incluido
+#Forma de colchete angular	O pré-processador pesquisa por arquivos de inclusão nesta ordem:
+#Colchete angular --> "<",">"
+#1) ao longo do caminho especificado por cada /I opção de compilador.
+#2) quando a compilação ocorre na linha de comando, ao longo dos caminhos especificados pela INCLUDE variável de ambiente.
+#            arquivo = open(nomeArquivo, 'r') 
+#            conteudo = arquivo.readlines()                                                  #Le conteudo
+#            arquivo.close()                                                                 #Fecha arquivo
+#            conteudo = fazIncludeAspas(conteudo)                                            #Inclui arquivos incluidos no arquivo incluido com """s
+#            conteudo = fazIncludeMQMQ(conteudo)                                            #Inclui arquivos incluidos no arquivo incluido com "<" e ">"
+#            for linhaConteudo in conteudo:                                                  #Copia pro buffer conteudo do include
+#                buffer.append(linhaConteudo)
+        else:                                                                               #Se não tiver ou não for valido
+            buffer.append(linha)                                                            #Mantém a linha
+    return buffer 
 #     for linha in codigo:
 #         include = re.search("#include\s*<[\d\w]*\.[ch]>\s*\n", linha)
 #         if include and include.group() == linha:
