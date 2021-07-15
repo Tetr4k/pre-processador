@@ -69,16 +69,19 @@ def fazIncludeMQMQ(codigo):
 #     return codigo
 
 def tiraComentarioLinha(linha):                         #Funcao para remover comentarios de linha
-    #VALIDAR """s
+    #tem problema com """s -> VALIDAR """s
     novaLinha = re.sub("//.*$", "\n", linha)      #Substitui comentario de linha por "" usando regex
     return novaLinha                                    #Retorna nova linha
 def tiraTabulacao(linha):
+    #não tem problema com """s
     novaLinha = re.sub("^\s*", "", linha)
     return novaLinha
 def tiraEspacos(linha):
+    #tem problema com """s -> validar """s
     novaLinha = re.sub("\s*(?=[-+*\/<>=,&|!(){}\[\];])|(?<=[-+*\/<>=,&|!(){}\[\];])\s*", "", linha)
     return novaLinha
 def tiraQuebras(linha):
+    #não tem problema com """s
     novaLinha = re.sub("\\n$", "", linha)
     return novaLinha
 def preprocessa(buffer):#Manipulacao do buffer
