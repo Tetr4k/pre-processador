@@ -85,7 +85,7 @@ def preprocessa(buffer):#Manipulacao do buffer
 #Para cada include com Aspas no arquivo, se o arquivo incluido existir e estiver na pasta, copia seu conteudo, se não estiver na pasta, procura em INCLUDE, se o arquivo não existir, mantém o erro de sintaxe.
     buffer = fazIncludeAspas(buffer)            #Includes ""
 #LOGICA COLCHETES ANGULARES
-    #buffer = fazIncludeMQMQ(buffer)            #Includes <> 
+    buffer = fazIncludeMQMQ(buffer)            #Includes <> 
 #LOGICA DEFINES
     #                                           #Defines
 #Para cada linha, se a linha tem // valido(fora de "" validas), apaga conteudo até \n
@@ -98,22 +98,18 @@ def preprocessa(buffer):#Manipulacao do buffer
     buffer = map(tiraQuebras, buffer)           #Remove "/n" de cada linha, defines ja estarão resolvidos
 #LOGICA REMOVER /**/
     #buffer = tiraComentarioParagrafo(buffer)   #Remove comentario do tipo "/*"
-#LOGICA REMOVER " "s
-    #                                           #Remove " "s
     return buffer                               #Retorna conteudo após manipulação
 
-sistema = platform.system()                             #Identifica sistema
 os.system("mkdir backup")
 nomesArquivos = sys.argv                                #Acessa parametros passados
 nomesArquivos.pop(0)                                    #Remove primeiro parametro("processa.py")
 
 for nomeArquivo in nomesArquivos:                       #Faz o pre-processamento para cada arquivo passado por parametro. 
-    if sistema == "Windows":                            #Faz Backup do arquivo em Windows
+    if platform.system() == "Windows":                            #Faz Backup do arquivo em Windows
         os.system("copy "+nomeArquivo+" backup")
-    elif sistema == "Linux":                            #Faz Backup do arquivo em Linux
+    elif platform.system() == "Linux":                            #Faz Backup do arquivo em Linux
         os.system("cp "+nomeArquivo+" backup")
     else:
-        print("Sistema não identificado")
         exit()
     arquivo = open(nomeArquivo, 'r')                    #Abre arquivo para leitura
     codigo = arquivo.readlines()                        #Pega o conteudo do arquivo
@@ -123,17 +119,5 @@ for nomeArquivo in nomesArquivos:                       #Faz o pre-processamento
     arquivo.writelines(codigo)          #Escreve o conteudo do arquivo
     arquivo.close()                     #Fecha o arquivo
 
-#defines 
-# "Sobre os defines, é importante considerar macros também".
-# COMO ASSIM MACROS?????
-
-#Forma entre aspas	O pré-processador pesquisa por arquivos de inclusão nesta ordem:
-#1) no mesmo diretório que o arquivo que contém a #include instrução.
-#2) nos diretórios dos arquivos de inclusão abertos no momento, na ordem inversa em que foram abertos. A pesquisa começará no diretório do arquivo de inclusão pai e continuará para cima até os diretórios de qualquer arquivo de inclusão avô.
-#3) ao longo do caminho especificado por cada /I opção de compilador.
-#4) ao longo dos caminhos especificados pela variável de INCLUDE ambiente.
-
-#Forma de colchete angular	O pré-processador pesquisa por arquivos de inclusão nesta ordem:
-#Colchete angular --> "<",">"
-#1) ao longo do caminho especificado por cada /I opção de compilador.
-#2) quando a compilação ocorre na linha de comando, ao longo dos caminhos especificados pela INCLUDE variável de ambiente.
+#UTIL: https://www.cprogramming.com/tutorial/cpreprocessor.html
+#UTIL2: https://docs.microsoft.com/pt-br/cpp/preprocessor/hash-include-directive-c-cpp?view=msvc-160
