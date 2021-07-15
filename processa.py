@@ -75,6 +75,9 @@ def tiraComentarioLinha(linha):                         #Funcao para remover com
 def tiraTabulacao(linha):
     novaLinha = re.sub("^\s*", "", linha)
     return novaLinha
+def tiraEspacos(linha):
+    novaLinha = re.sub("\s*(?=[-+*\/<>=,&|!(){}\[\];])|(?<=[-+*\/<>=,&|!(){}\[\];])\s*", "", linha)
+    return novaLinha
 def preprocessa(buffer):#Manipulacao do buffer
 #Para cada include com Aspas no arquivo, se o arquivo incluido existir e estiver na pasta, copia seu conteudo, se não estiver na pasta, procura em INCLUDE, se o arquivo não existir, mantém o erro de sintaxe.
     buffer = fazIncludeAspas(buffer)            #Includes ""
@@ -86,6 +89,8 @@ def preprocessa(buffer):#Manipulacao do buffer
     buffer = map(tiraComentarioLinha, buffer)   #Remove comentario do tipo "//" de cada linha
 #Para cada linha, remove espaço antes
     buffer = map(tiraTabulacao, buffer)         #Remove tabulação de cada linha
+#Para cada linha, remove espaços em volta de -+*\/<>=,&|!(){}[];
+    buffer = map(tiraEspacos, buffer)
 #LOGICA REMOVER /**/
     #buffer = tiraComentarioParagrafo(buffer)   #Remove comentario do tipo "/*"
 #LOGICA REMOVER " "s
