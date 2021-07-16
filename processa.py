@@ -1,13 +1,18 @@
 import sys, os, platform, re
 
-bufferIncludes = []         #Lista de arquivos incluidos
-sistema = platform.system() #Descobre qual o sistema
-
-if not sistema == "Windows" or "Linux" or "Darwin":
+bufferIncludes = []                                     #Lista de arquivos incluidos
+sistema = platform.system()                             #Informa qual o sistema
+if not sistema == ("Windows" or "Linux" or "Darwin"):   #Valida sistema
     print("O sistema", sistema, "não é reconhecido.")
     exit()
 
-def fazIncludeAspas(codigo):#Função para resolver includes com Aspas
+def leArquivo(arquivo):         #Função para ler conteudo do arquivo e tratar os includes dele
+    conteudo = arquivo.readlines()                                              #Le conteudo
+    conteudo = fazIncludeAspas(conteudo)                                        #Inclui arquivos incluidos no arquivo incluido com """s
+    conteudo = fazIncludeAngular(conteudo)                                      #Inclui arquivos incluidos no arquivo incluido com "<" e ">"
+    return conteudo                                                             #Retorna conteudo tratado
+
+def fazIncludeAspas(codigo):    #Função para resolver includes com Aspas
     buffer = []                                                                             #Buffer vazio
     while codigo:                                                                           #Enquanto existem linhas não processadas
         linha = codigo[0]                                                                   #Faz uma copia da primeira linha
