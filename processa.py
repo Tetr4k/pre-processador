@@ -124,15 +124,11 @@ for nomeArquivo in nomesArquivos:                       #Faz o pre-processamento
 
     try:
         arquivo = open(nomeArquivo, 'r')                #Abre arquivo para leitura
+        codigo = arquivo.readlines()                    #Pega o conteudo do arquivo
+        arquivo.close()                                 #Fecha o arquivo
+        codigo = preprocessa(codigo)                    #Faz o pre-processa do codigo
+        arquivo = open(nomeArquivo, 'w')                #Abre arquivo para escrita
+        arquivo.writelines(codigo)                      #Escreve o conteudo do arquivo
+        arquivo.close()                                 #Fecha o arquivo
     except:
         continue                                        #Se gerar erro, passa para o proximo arquivo
-    
-    codigo = arquivo.readlines()                        #Pega o conteudo do arquivo
-    arquivo.close()                                     #Fecha o arquivo
-    codigo = preprocessa(codigo)                        #Pre-processa
-    arquivo = open(nomeArquivo, 'w')                    #Abre arquivo para escrita
-    arquivo.writelines(codigo)                          #Escreve o conteudo do arquivo
-    arquivo.close()                                     #Fecha o arquivo
-
-#UTIL: https://www.cprogramming.com/tutorial/cpreprocessor.html
-#UTIL2: https://docs.microsoft.com/pt-br/cpp/preprocessor/hash-include-directive-c-cpp?view=msvc-160
