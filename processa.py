@@ -67,22 +67,25 @@ def fazIncludeAngular(codigo):      #Função para resolver includes com Colchet
             buffer.append(linha)                                                            #Mantém a linha
     return buffer                                                                           #Retorna codigo resultado
 
-def tiraComentarioLinha(linha):#Funcao para remover comentarios de linha
+def tiraComentarioLinha(linha):     #Funcao para remover comentarios de linha
     '''tem problema com """s -> VALIDAR """s'''
     return re.sub("//.*$", "\n", linha)                                                             #Substitui comentario de linha por "" usando regex e retorna
 
-def tiraComentarioParagrafo(linha):#Funcao para remover comentarios de paragrafo
+def tiraComentarioParagrafo(linha): #Funcao para remover comentarios de paragrafo
     '''tem problema com """s -> VALIDAR """s'''
-    return re.sub("\/\*.*\*\/", "", linha[0])                                                       #Substitui comentario de paragrafo por "" usando regex e retorna
+    procura = re.search("\/\*.*?\*\/", linha)
+    if procura:
+        print(procura)
+    return re.sub("\/\*.*?\*\/", "", linha)                                                         #Substitui comentario de paragrafo por "" usando regex e retorna
 
-def tiraEspacos(linha):#Funcao para remover espaços não uteis
+def tiraEspacos(linha):             #Funcao para remover espaços não uteis
     '''tem problema com """s -> validar """s'''
-    return re.sub("^\s*|\s*(?=[-+*\/<>=,&|!(){}\[\];])|(?<=[-+*\/<>=,&|!(){}\[\];])\s*", "", linha) #Substitui espaços não uteis por "" usando regex e retorna
+    return re.sub("\s*(?=[-+*\/<>=,&|!(){}\[\];])|(?<=[-+*\/<>=,&|!(){}\[\];])\s*", "", linha) #Substitui espaços não uteis por "" usando regex e retorna
 
-def tiraQuebras(linha):#Função para remover quebras de linha
+def tiraQuebras(linha):             #Função para remover quebras de linha
     return re.sub("\\n$", "", linha)                                                                #Substitui quebras de linha por "" usando regex e retorna
 
-def preprocessa(buffer):#Pre-processa o codigo
+def preprocessa(buffer):            #Função para pre-processar o codigo
 #Para cada include com Aspas no arquivo, se o arquivo incluido existir e estiver na pasta, copia seu conteudo, se não estiver na pasta, procura no compilador, se o arquivo não existir, mantém o erro de sintaxe.
     buffer = fazIncludeAspas(buffer)            #Includes ""
 
@@ -91,17 +94,19 @@ def preprocessa(buffer):#Pre-processa o codigo
     
     '''LOGICA DEFINES'''
     #                                           #Defines
+
+    '''Tira do \n até o // atras'''   
 #Para cada linha, se a linha tem // valido(fora de "" validas), apaga conteudo até \n
     buffer = map(tiraComentarioLinha, buffer)   #Remove comentario do tipo "//" de cada linha
 
-#Para cada linha, remove espaços em volta de -+*\/<>=,&|!(){}[] e tabulações;
-    buffer = map(tiraEspacos, buffer)
-
 #Para cada linha, remove o ultimo "\n"
     buffer = map(tiraQuebras, buffer)           #Remove "/n" de cada linha, defines ja estarão resolvidos
+
+#Para cada linha, remove espaços em volta de -+*\/<>=,&|!(){}[]
+    buffer = map(tiraEspacos, buffer)
     
     '''LOGICA REMOVER /**/'''
-    #buffer = tiraComentarioParagrafo(buffer)   #Remove comentario do tipo "/*"
+    #buffer = map(tiraComentarioParagrafo, buffer)   #Remove comentario do tipo "/*"
     
     bufferIncludes.clear()                      #Limpa buffer de includes
     return buffer                               #Retorna conteudo após manipulação
