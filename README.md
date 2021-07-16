@@ -21,18 +21,20 @@ Os arquivos terão seus includes e defines resolvidos, comentarios, espaços e q
 
 ### Erros pendentes:
 
-*Validar espaços, que podem estar dentro de strings.
-*Validar comentarios de linha("//"), que podem estar dentro de strings.
-*Validar comentarios de paragrafo("/**"), que podem estar dentro de strings.
-*Resolver erro com "tiraComentarioParagrafo()".
-*Resolver defines e defines condicionais.
+* Validar espaços, que podem estar dentro de strings.
+* Validar comentarios de linha("//"), que podem estar dentro de strings.
+* Validar comentarios de paragrafo("/**"), que podem estar dentro de strings.
+* Resolver erro com "tiraComentarioParagrafo()".
+* Resolver defines e defines condicionais.
 
 ### Fontes e Utilidades:
 
-Estamos implementando nosso pre-processador baseado nas regras de pre-processamento do site:[Site Cprogramming](https://www.cprogramming.com/tutorial/cpreprocessor.html)
+Estamos implementando nosso pre-processador baseado nas regras de pre-processamento do site:
+
+[Site Cprogramming](https://www.cprogramming.com/tutorial/cpreprocessor.html)
 
 Estamos ordenando as resoluções dos includes a partir das informações cedidas na documentação da [Microsoft](https://docs.microsoft.com/pt-br/cpp/preprocessor/hash-include-directive-c-cpp?view=msvc-160)
 
-Estamos testando nossas expressões regulares no site [Regex101](https://regex101.com/)~
+Estamos testando nossas expressões regulares no site [Regex101](https://regex101.com/)
 
 O arquivo PDF desse trabalho esta disponivel no site do professor [Bazilio](http://www2.ic.uff.br/~bazilio/cursos/lp/material/Trabalhos.pdf)
