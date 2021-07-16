@@ -30,21 +30,18 @@ def fazIncludeAspas(codigo):    #Função para resolver includes com Aspas
                             arquivo = open("c:\\mingw\\include\\"+nomeArquivo, 'r')             #Se o sistema for Windows procura a partir de C:
                         else:
                             arquivo = open("\\usr\\include\\"+nomeArquivo, 'r')                 #Se o sistema for Linux/MAC procura a partir da raiz
-                    conteudo = arquivo.readlines()                                              #Le conteudo
-                    arquivo.close()                                                             #Fecha arquivo
-                    conteudo = fazIncludeAspas(conteudo)                                    #Inclui arquivos incluidos no arquivo incluido com """s
-                    conteudo = fazIncludeAngular(conteudo)                                  #Inclui arquivos incluidos no arquivo incluido com "<" e ">"
-                    for linhaConteudo in conteudo:                                          #Copia conteudo do include para o buffer
-                        buffer.append(linhaConteudo)
                 except:
                     buffer.append(linha)                                                    #Mantém linha caso arquivo não seja encontrado
-                for linhaConteudo in conteudo:                                              #Copia pro buffer conteudo do include
+                    continue
+                conteudo = leArquivo(arquivo)                                               #Pega conteudo do arquivo com includes
+                arquivo.close()                                                             #Fecha arquivo
+                for linhaConteudo in conteudo:                                              #Copia conteudo do include para o buffer
                     buffer.append(linhaConteudo)
         else:                                                                               #Se não tiver ou não for valido
             buffer.append(linha)                                                            #Mantém a linha
     return buffer                                                                           #Retorna codigo resultado
 
-def fazIncludeAngular(codigo):#Função para resolver includes com Colchetes Angulares
+def fazIncludeAngular(codigo):      #Função para resolver includes com Colchetes Angulares
     buffer = []                                                                             #Buffer vazio
     while codigo:                                                                           #Enquanto existem linhas não processadas
         linha = codigo[0]                                                                   #Faz uma copia da primeira linha
@@ -59,14 +56,13 @@ def fazIncludeAngular(codigo):#Função para resolver includes com Colchetes Ang
                         arquivo = open("c:\\mingw\\include\\"+nomeArquivo, 'r')                 #Se o sistema for Windows procura a partir de C:
                     else:
                         arquivo = open("\\usr\\include\\"+nomeArquivo, 'r')                     #Se o sistema for Linux/MAC procura a partir da raiz
-                    conteudo = arquivo.readlines()                                              #Le conteudo
-                    arquivo.close()                                                             #Fecha arquivo
-                    conteudo = fazIncludeAspas(conteudo)                                    #Inclui arquivos incluidos no arquivo incluido com """s
-                    conteudo = fazIncludeAngular(conteudo)                                  #Inclui arquivos incluidos no arquivo incluido com "<" e ">"
-                    for linhaConteudo in conteudo:                                          #Copia pro buffer conteudo do include
-                        buffer.append(linhaConteudo)
                 except:
                     buffer.append(linha)                                                    #Mantém linha caso arquivo não seja encontrado
+                    continue
+                conteudo = leArquivo(arquivo)
+                arquivo.close()                                                             #Fecha arquivo
+                for linhaConteudo in conteudo:                                              #Copia pro buffer conteudo do include
+                    buffer.append(linhaConteudo)
         else:                                                                               #Se não tiver ou não for valido
             buffer.append(linha)                                                            #Mantém a linha
     return buffer                                                                           #Retorna codigo resultado
