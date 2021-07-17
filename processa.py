@@ -6,13 +6,18 @@ if not sistema == ("Windows" or "Linux" or "Darwin"):   #Valida sistema
     print("O sistema", sistema, "não é reconhecido.")
     exit()
 
-def leArquivo(arquivo):         #Função para ler conteudo do arquivo e tratar os includes dele
-    conteudo = arquivo.readlines()                                              #Le conteudo
-    conteudo = fazIncludeAspas(conteudo)                                        #Inclui arquivos incluidos no arquivo incluido com """s
-    conteudo = fazIncludeAngular(conteudo)                                      #Inclui arquivos incluidos no arquivo incluido com "<" e ">"
-    return conteudo                                                             #Retorna conteudo tratado
+def leArquivo(arquivo):                                     #Função para ler conteudo do arquivo e tratar os includes dele
+    conteudoArquivo = arquivo.readlines()                   #Le conteudo
+    conteudoPreprocessado = preprocessa(conteudoArquivo)    #Pre-processa conteudo
+    return conteudoPreprocessado                            #Retorna conteudo tratado
 
-def fazIncludeAspas(codigo):    #Função para resolver includes com Aspas
+def abreCompilador(nomeArquivo):
+    if sistema == "Windows":
+        return open("c:\\mingw\\include\\"+nomeArquivo, 'r')         #Se o sistema for Windows procura a partir de C:
+    else:
+        return open("\\usr\\include\\"+nomeArquivo, 'r')             #Se o sistema for Linux/MAC procura a partir da raiz          
+
+def fazIncludeAspas(codigo):                                                                #Função para resolver includes com Aspas
     buffer = []                                                                             #Buffer vazio
     while codigo:                                                                           #Enquanto existem linhas não processadas
         linha = codigo[0]                                                                   #Faz uma copia da primeira linha
