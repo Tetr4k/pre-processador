@@ -7,7 +7,9 @@ O programa implementado trata-se de um pre-processador para um programa em C/C++
 
 ### Requisitos:
 
-Para desenvolver esse pre-processador estamos usando o compilador Mingw e desenvolvendo em Python 3.8.6. Nós estamos desenvolvendo em maquinas com windows, porém é previsto que o programa rode em qualquer distribuição linux e MacOS.
+Para desenvolver esse pre-processador estamos usando o compilador Mingw e desenvolvendo em Python 3.8.6. Nós estamos desenvolvendo em maquinas com windows, porém é previsto que o programa rode em qualquer distribuição Linux e MacOS.
+
+O programa prevê que o compilador estara instalado em "C:" no windows, e em "/usr" nas distribuições Linux e MacOS
 
 ### Como utilizar?
 
@@ -19,7 +21,7 @@ Devem ser passados por parametro os arquivos C/C++ que serão pre-processados:
 
 Os arquivos terão seus includes e defines resolvidos, comentarios, espaços e quebras de linha removidos.
 
-### Passos:
+### Passos para o pre-processamento:
 
 * Cria mascara sobre strings;
 * Remove comentarios "//";
