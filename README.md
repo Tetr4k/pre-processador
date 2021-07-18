@@ -19,11 +19,23 @@ Devem ser passados por parametro os arquivos C/C++ que serão pre-processados:
 
 Os arquivos terão seus includes e defines resolvidos, comentarios, espaços e quebras de linha removidos.
 
+### Passos:
+
+* Cria mascara sobre strings;
+* Remove comentarios "//";
+* Remove comentarios "/**/";
+* Resolve defines;
+* Resolve defines condicionais;
+* Remove Espaços não uteis;
+* Remove Tabulações;
+* Resolve mascara sobre strings;
+* Resolve includes de Aspas;
+* Resolve includes de Colchetes angulares;
+* Remove quebras de linha.
+
 ### Erros pendentes:
 
-* Validar espaços, que podem estar dentro de strings.
-* Validar comentarios de linha("//"), que podem estar dentro de strings.
-* Validar comentarios de paragrafo("/**"), que podem estar dentro de strings.
+* Tirar temporariamente as strings sem erro na volta.
 * Resolver erro com "tiraComentarioParagrafo()".
 * Resolver defines e defines condicionais.
 
