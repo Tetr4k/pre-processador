@@ -35,9 +35,9 @@ Os arquivos terão seus includes e defines resolvidos, comentarios, espaços e q
 
 ### Erros pendentes:
 
-* Tirar temporariamente as strings sem erro na volta.
-* Resolver erro com "tiraComentarioParagrafo()".
-* Resolver defines e defines condicionais.
+* Resolver erro com "tiraComentarioParagrafo()";
+* Resolver defines condicionais;
+* Corrigir remoção de tabulação e espaço.
 
 ### Fontes e Utilidades:
 
