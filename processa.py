@@ -19,10 +19,10 @@ def abreCompilador(nomeArquivo):
 
 def fazIncludeAspas(codigo):                                                                #Função para resolver includes com Aspas
     buffer = []                                                                             #Buffer vazio
-    while codigo:                                                                           #Enquanto existem linhas não processadas
-        linha = codigo[0]                                                                   #Faz uma copia da primeira linha
+    while codigo:
+        linha = codigo[0]                                                                   #Faz uma copia da primeira linha)
         codigo.pop(0)                                                                       #Remove a primeira linha da lista
-        include = re.search("#include\s*\"[\d\w]*\.[ch]\"\s*\n", linha)                     #Expressão regular para verificar se tem include na linha
+        include = re.search("#include\s*\"[\d\w]*\.[ch]\"\s*", linha)                     #Expressão regular para verificar se tem include na linha
         if include and include.group() == linha:                                            #Se tiver include na linha e for valido
             nomeArquivo = re.search("(?<=\")[\d\w]*\.[ch](?=\")", include.group()).group()  #Pega nome do arquivo incluido
             if not nomeArquivo in bufferIncludes:                                           #Se arquivo ainda não foi incluido
@@ -37,20 +37,21 @@ def fazIncludeAspas(codigo):                                                    
                     continue
                 conteudo = leArquivo(arquivo)                                               #Pega conteudo do arquivo com includes
                 arquivo.close()                                                             #Fecha arquivo
-                buffer.append(conteudo)                                                     #Copia conteudo do include para o buffer
+                for linha in conteudo:
+                    buffer.append(linha)                                                     #Copia conteudo do include para o buffer
         else:                                                                               #Se não tiver ou não for valido
             buffer.append(linha)                                                            #Mantém a linha
-    return buffer                                                                           #Retorna codigo resultado
+    return list(buffer)                                                                           #Retorna codigo resultado
 
 def fazIncludeAngular(codigo):                                                              #Função para resolver includes com Colchetes Angulares
     buffer = []                                                                             #Buffer vazio
     while codigo:                                                                           #Enquanto existem linhas não processadas
         linha = codigo[0]                                                                   #Faz uma copia da primeira linha
         codigo.pop(0)                                                                       #Remove primeira linha da lista
-        include = re.search("#include\s*<[\d\w]*\.[ch]>\s*\n", linha)                       #Expressão regular para verificar se tem include na linha
+        include = re.search("#include\s*<[\d\w]*\.[ch]>\s*", linha)                         #Expressão regular para verificar se tem include na linha
         if include and include.group() == linha:                                            #Se tiver include na linha e for valido
             nomeArquivo = re.search("(?<=<)[\d\w]*\.[ch](?=>)", include.group()).group()    #Pega nome do arquivo incluido
-            if not nomeArquivo in bufferIncludes:                                           #Se arquivo ainda não foi incluido
+            if nomeArquivo not in bufferIncludes:                                           #Se arquivo ainda não foi incluido
                 bufferIncludes.append(nomeArquivo)                                          #Inclui arquivo na lista de arquivos incluidos
                 try:
                     arquivo = abreCompilador(nomeArquivo)    
@@ -59,10 +60,11 @@ def fazIncludeAngular(codigo):                                                  
                     continue
                 conteudo = leArquivo(arquivo)
                 arquivo.close()                                                             #Fecha arquivo
-                buffer.append(conteudo)                                                     #Copia conteudo do include para o buffer
+                for linha in conteudo:
+                    buffer.append(linha)                                                    #Copia conteudo do include para o buffer
         else:                                                                               #Se não tiver ou não for valido
             buffer.append(linha)                                                            #Mantém a linha
-    return buffer                                                                           #Retorna codigo resultado
+    return list(buffer)                                                                           #Retorna codigo resultado
 
 def preprocessa(buffer):#Função para pre-processar o codigo
     #Para cada include com Aspas no arquivo, se o arquivo incluido existir e estiver na pasta, copia seu conteudo, se não estiver na pasta, procura no compilador, se o arquivo não existir, passa para o proximo.
