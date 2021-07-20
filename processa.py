@@ -41,6 +41,26 @@ def listaIncludesAngulares(buffer):
         return linha
     return list(map(encontra, buffer))
 
+def resolveIncludesAspas(buffer):
+    novoBuffer = []
+    for include in includesAspas:
+        includesAspas.remove(include)
+        try:                                                                        #Abre arquivo se existir
+            try:
+                arquivo = open(include, 'r')                                    
+            except:                                                                 #Se gerar erro tenta abrir do compilador
+                arquivo = abreCompilador(include)
+        except:
+            print("Arquivo", include, "não podê ser encontrado.")
+            continue
+        conteudo = leArquivo(arquivo)                                               #Pega conteudo do arquivo com includes
+        arquivo.close()                                                             #Fecha arquivo
+        for linha in conteudo:
+            print(linha)
+            novoBuffer.append(linha)                                                     #Copia conteudo do include para o buffer
+    novoBuffer.extend(buffer)
+    return novoBuffer
+
 def fazIncludeAspas(codigo):                                                                #Função para resolver includes com Aspas
     buffer = []                                                                             #Buffer vazio
     while codigo:
@@ -205,6 +225,7 @@ def preprocessa(buffer):    #Função para pre-processar o codigo
         return re.sub("\\n$", "", linha)
     #Para cada linha, remove o ultimo "\n"
     #buffer = list(map(tiraQuebras, buffer))           #Remove "/n" de cada linha, defines ja estarão resolvidos
+    buffer = resolveIncludesAspas(buffer)
     includesAspas.clear()
     includesAngulares.clear()
     bufferStrings.clear()                       #Limpa buffer de strings
