@@ -18,7 +18,7 @@ def abreCompilador(nomeArquivo):
         return open("\\usr\\include\\"+nomeArquivo, 'r')             #Se o sistema for Linux/MAC procura a partir da raiz          
 
 includesAspas = []
-def listaIncludesAspas(buffer):
+def listaIncludeAspas(buffer):
     def encontra(linha):
         include = re.search("^#include\s*\".*\.[ch]\"", linha)
         if include:
@@ -30,7 +30,7 @@ def listaIncludesAspas(buffer):
     return list(map(encontra, buffer))
 
 includesAngulares = []
-def listaIncludesAngulares(buffer):
+def listaIncludeAngular(buffer):
     def encontra(linha):
         include = re.search("^#include\s*<.*\.[ch]>", linha)
         if include:
@@ -41,23 +41,44 @@ def listaIncludesAngulares(buffer):
         return linha
     return list(map(encontra, buffer))
 
-def resolveIncludesAspas(buffer):
+incluidos = []
+def resolveIncludeAspas(buffer):
     novoBuffer = []
     for include in includesAspas:
-        includesAspas.remove(include)
-        try:                                                                        #Abre arquivo se existir
+        if include not in incluidos:
+            incluidos.append(include)
+            includesAspas.remove(include)
+            try:                                                                        #Abre arquivo se existir
+                try:
+                    arquivo = open(include, 'r')                                    
+                except:                                                                 #Se gerar erro tenta abrir do compilador
+                    arquivo = abreCompilador(include)
+            except:
+                print("Arquivo", include, "não podê ser encontrado.")
+                continue
+            conteudo = leArquivo(arquivo)                                               #Pega conteudo do arquivo com includes
+            arquivo.close()                                                             #Fecha arquivo
+            for linha in conteudo:
+                novoBuffer.append(linha)                                                     #Copia conteudo do include para o buffer
+    novoBuffer.extend(buffer)
+    return novoBuffer
+
+def resolveIncludeAngular(buffer):
+    novoBuffer = []
+    print("teste")
+    for include in includesAngulares:
+        if include not in incluidos:
+            incluidos.append(include)
+            print(include)
             try:
-                arquivo = open(include, 'r')                                    
-            except:                                                                 #Se gerar erro tenta abrir do compilador
-                arquivo = abreCompilador(include)
-        except:
-            print("Arquivo", include, "não podê ser encontrado.")
-            continue
-        conteudo = leArquivo(arquivo)                                               #Pega conteudo do arquivo com includes
-        arquivo.close()                                                             #Fecha arquivo
-        for linha in conteudo:
-            print(linha)
-            novoBuffer.append(linha)                                                     #Copia conteudo do include para o buffer
+                arquivo = abreCompilador(include)    
+            except:
+                print("Arquivo", include, "não podê ser encontrado.")
+                continue
+            conteudo = leArquivo(arquivo)                                               #Pega conteudo do arquivo com includes
+            arquivo.close()                                                             #Fecha arquivo
+            for linha in conteudo:
+                novoBuffer.append(linha)                                                     #Copia conteudo do include para o buffer
     novoBuffer.extend(buffer)
     return novoBuffer
 
@@ -71,18 +92,6 @@ def fazIncludeAspas(codigo):                                                    
             nomeArquivo = re.search("(?<=\")[\d\w]*\.[ch](?=\")", include.group()).group()  #Pega nome do arquivo incluido
             if not nomeArquivo in bufferIncludes:                                           #Se arquivo ainda não foi incluido
                 bufferIncludes.append(nomeArquivo)                                          #Inclui arquivo na lista de arquivos incluidos
-                try:
-                    try:
-                        arquivo = open(nomeArquivo, 'r')                                    #Abre arquivo se existir
-                    except:                                                                 #Se gerar erro tenta abrir do compilador
-                        arquivo = abreCompilador(nomeArquivo)
-                except:
-                    print("Arquivo", nomeArquivo, "não podê ser encontrado.")
-                    continue
-                conteudo = leArquivo(arquivo)                                               #Pega conteudo do arquivo com includes
-                arquivo.close()                                                             #Fecha arquivo
-                for linha in conteudo:
-                    buffer.append(linha)                                                     #Copia conteudo do include para o buffer
         else:                                                                               #Se não tiver ou não for valido
             buffer.append(linha)                                                            #Mantém a linha
     return list(buffer)                                                                           #Retorna codigo resultado
@@ -97,11 +106,7 @@ def fazIncludeAngular(codigo):                                                  
             nomeArquivo = re.search("(?<=<)[\d\w]*\.[ch](?=>)", include.group()).group()    #Pega nome do arquivo incluido
             if nomeArquivo not in bufferIncludes:                                           #Se arquivo ainda não foi incluido
                 bufferIncludes.append(nomeArquivo)                                          #Inclui arquivo na lista de arquivos incluidos
-                try:
-                    arquivo = abreCompilador(nomeArquivo)    
-                except:
-                    print("Arquivo", nomeArquivo, "não podê ser encontrado.")
-                    continue
+                
                 conteudo = leArquivo(arquivo)
                 arquivo.close()                                                             #Fecha arquivo
                 for linha in conteudo:
@@ -163,10 +168,8 @@ def trataDefine(codigo):
     return buffer                                                                          #retorna o código com as alterações
 
 def preprocessa(buffer):    #Função para pre-processar o codigo
-    buffer = listaIncludesAspas(buffer)
-    print(includesAspas)
-    buffer = listaIncludesAngulares(buffer)
-    print(includesAngulares)
+    buffer = listaIncludeAspas(buffer)
+    buffer = listaIncludeAngular(buffer)
 
     '''volta com \n mas no arquivo'''
     bufferStrings = []
@@ -181,7 +184,7 @@ def preprocessa(buffer):    #Função para pre-processar o codigo
         #Substitui comentario de linha por "" usando regex e retorna
         return re.sub("//.*$", "\n", linha)
     #Para cada linha, se a linha tem // valido(fora de "" validas), apaga conteudo até \n
-    buffer = list(map(tiraComentarioLinha, buffer))   #Remove comentario do tipo "//" de cada linha
+    #buffer = list(map(tiraComentarioLinha, buffer))   #Remove comentario do tipo "//" de cada linha
 
     '''Para cada linha do código, se a linha contem um define, caso o define seja uma função, irá remover as chaves, caso tenha, e depois irá percorrer o código novamente.
     Se Achar alguma ocorrência do define no código, irá pegar a expressão, substituir os valores nas variáveis, e então substituir a chamada do define pela expressão.
@@ -189,18 +192,18 @@ def preprocessa(buffer):    #Função para pre-processar o codigo
     Caso não seja uma função, apenas substituirá o valor onde houver a a chamada. Depois, adicionará a linha alterada no buffer.
     Após percorrer todo o código, retornará o buffer'''
 
-    buffer = trataDefine(buffer)                       #Trata os Defines
+    #buffer = trataDefine(buffer)                       #Trata os Defines
 
     def tiraEspacos(linha):     #Funcao para remover espaços não uteis
         #Substitui espaços não uteis por "" usando regex e retorna
-        return re.sub("\s+(?=[-+*\/<>=,&|!(){}\[\];:])|(?<=[-+*\/<>=,&|!(){}\[\];:])\s+", "\n", linha)
+        return re.sub("\s+(?=[-+*\/<>=,&|!(){}\[\];:])|(?<=[-+*\/<>=,&|!(){}\[\];:])\s+(?!=\\n)", "", linha)
     #Para cada linha, remove espaços em volta de caracteres especiais
     #buffer = list(map(tiraEspacos, buffer))
 
     def tiraTabulacoes(linha):
         return re.sub("\t", "\n", linha)
     #Para cada linha, remove tabulações
-    buffer = list(map(tiraTabulacoes, buffer))
+    #buffer = list(map(tiraTabulacoes, buffer))
     
     def tiraComentarioParagrafo(linha): #Funcao para remover comentarios de paragrafo
         return re.sub("/\*.*?\*/", "", linha)                                                         #Substitui comentario de paragrafo por "" usando regex e retorna
@@ -225,7 +228,8 @@ def preprocessa(buffer):    #Função para pre-processar o codigo
         return re.sub("\\n$", "", linha)
     #Para cada linha, remove o ultimo "\n"
     #buffer = list(map(tiraQuebras, buffer))           #Remove "/n" de cada linha, defines ja estarão resolvidos
-    buffer = resolveIncludesAspas(buffer)
+    buffer = resolveIncludeAspas(buffer)
+    buffer = resolveIncludeAngular(buffer)
     includesAspas.clear()
     includesAngulares.clear()
     bufferStrings.clear()                       #Limpa buffer de strings
