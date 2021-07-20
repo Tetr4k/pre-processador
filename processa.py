@@ -17,6 +17,30 @@ def abreCompilador(nomeArquivo):
     else:
         return open("\\usr\\include\\"+nomeArquivo, 'r')             #Se o sistema for Linux/MAC procura a partir da raiz          
 
+includesAspas = []
+def listaIncludesAspas(buffer):
+    def encontra(linha):
+        include = re.search("^#include\s*\".*\.[ch]\"", linha)
+        if include:
+            nomeArquivo = re.search("(?<=\").*\.[ch](?=\")", include.group())
+            if nomeArquivo and nomeArquivo not in includesAspas:
+                includesAspas.append(nomeArquivo.group())
+            linha = re.sub("^#include\s*\".*\.[ch]\"", "", linha)
+        return linha
+    return list(map(encontra, buffer))
+
+includesAngulares = []
+def listaIncludesAngulares(buffer):
+    def encontra(linha):
+        include = re.search("^#include\s*<.*\.[ch]>", linha)
+        if include:
+            nomeArquivo = re.search("(?<=<).*\.[ch](?=>)", include.group())
+            if nomeArquivo and nomeArquivo not in includesAngulares:
+                includesAngulares.append(nomeArquivo.group())
+            linha = re.sub("^#include\s*<.*\.[ch]>", "", linha)
+        return linha
+    return list(map(encontra, buffer))
+
 def fazIncludeAspas(codigo):                                                                #Função para resolver includes com Aspas
     buffer = []                                                                             #Buffer vazio
     while codigo:
@@ -119,6 +143,11 @@ def trataDefine(codigo):
     return buffer                                                                          #retorna o código com as alterações
 
 def preprocessa(buffer):    #Função para pre-processar o codigo
+    buffer = listaIncludesAspas(buffer)
+    print(includesAspas)
+    buffer = listaIncludesAngulares(buffer)
+    print(includesAngulares)
+
     '''volta com \n mas no arquivo'''
     bufferStrings = []
     def tiraStrings(linha):
@@ -176,7 +205,8 @@ def preprocessa(buffer):    #Função para pre-processar o codigo
         return re.sub("\\n$", "", linha)
     #Para cada linha, remove o ultimo "\n"
     #buffer = list(map(tiraQuebras, buffer))           #Remove "/n" de cada linha, defines ja estarão resolvidos
-    
+    includesAspas.clear()
+    includesAngulares.clear()
     bufferStrings.clear()                       #Limpa buffer de strings
     return buffer                               #Retorna conteudo após manipulação
 
