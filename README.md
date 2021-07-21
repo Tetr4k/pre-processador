@@ -2,6 +2,7 @@
 ## Trabalho 2 de Linguagens de programação
 
 ### O que é esse repositorio?
+
 Esse repositorio é usado para controle de versão de uma implementação do exercicio 6 do arquivo Trabalhos.pdf, um trabalho avaliado de Linguagens de Programação do curso de Ciência da Computação na UFF-PURO.
 O programa implementado trata-se de um pre-processador para um programa em C/C++.
 
@@ -23,23 +24,25 @@ Os arquivos terão seus includes e defines resolvidos, comentarios, espaços e q
 
 ### Passos para o pre-processamento:
 
+* Mapeia Includes de Aspas
+* Mapeia Includes de Colchetes Angulares
 * Cria mascara sobre strings;
 * Remove comentarios "//";
 * Remove comentarios "/**/";
 * Resolve defines;
-* Resolve defines condicionais;
+* Resolve defines condicionais;(FALTANDO)
 * Remove Espaços não uteis;
 * Remove Tabulações;
+* Remove quebras de linha.
 * Resolve mascara sobre strings;
 * Resolve includes de Aspas;
 * Resolve includes de Colchetes angulares;
-* Remove quebras de linha.
 
 ### Erros pendentes:
 
 * Resolver erro com "tiraComentarioParagrafo()";
+* Resolver defines normais; (Erro no preprocessamento da leitura dos arquivos de includes -> Provavelmente erro com algo não previsto nos arquivos ".c" e ".h")
 * Resolver defines condicionais;
-* Corrigir remoção de tabulação e espaço.
 
 ### Fontes e Utilidades:
 
