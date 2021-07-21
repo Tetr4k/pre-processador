@@ -149,7 +149,7 @@ def preprocessa(buffer):    #Função para pre-processar o codigo
     Caso não seja uma função, apenas substituirá o valor onde houver a a chamada. Depois, adicionará a linha alterada no buffer.
     Após percorrer todo o código, retornará o buffer'''
 
-    buffer = trataDefine(buffer)                       #Trata os Defines
+    #buffer = trataDefine(buffer)                       #Trata os Defines
 
     def tiraComentarioLinha(linha):     #Funcao para remover comentarios de linha
         #Substitui comentario de linha por "" usando regex e retorna
@@ -157,13 +157,15 @@ def preprocessa(buffer):    #Função para pre-processar o codigo
     #Para cada linha, se a linha tem // valido(fora de "" validas), apaga conteudo até \n
     buffer = list(map(tiraComentarioLinha, buffer))   #Remove comentario do tipo "//" de cada linha
 
+    global apagarLinha
     apagarLinha = False
     def tiraComentarioParagrafo(linha): #Funcao para remover comentarios de paragrafo
+        global apagarLinha
         if apagarLinha:
-            fimComentario = re.seach("^.*\*/", linha)
+            fimComentario = re.search("^.*\*/", linha)
             if fimComentario:
                 linha = re.sub("^.*\*/", "", linha)
-                apagar = False#Era pra ser apagarLinha mas ta apontando erro
+                apagarLinha = False
             else:
                 linha = re.sub(".*", "", linha)
         else:
@@ -173,10 +175,10 @@ def preprocessa(buffer):    #Função para pre-processar o codigo
                 if fimComentario:
                     linha = re.sub("/\*.*\*/", "", linha)
                 else:
-                    apagar = True#Era pra ser apagarLinha mas ta apontando erro
+                    apagarLinha = True
                     linha = re.sub("/\*.*$", "", linha)
         return linha
-    #buffer = list(map(tiraComentarioParagrafo, buffer))  #Remove comentario do tipo "/*"
+    buffer = list(map(tiraComentarioParagrafo, buffer))  #Remove comentario do tipo "/*"
 
     def tiraEspacos(linha):     #Funcao para remover espaços não uteis
         #Substitui espaços não uteis por "" usando regex e retorna
