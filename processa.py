@@ -1,6 +1,4 @@
 import sys, os, platform, re
-
-bufferIncludes = []                                     #Lista de arquivos incluidos
 sistema = platform.system()                             #Informa qual o sistema
 if not sistema == ("Windows" or "Linux" or "Darwin"):   #Valida sistema
     print("O sistema", sistema, "não é reconhecido.")
@@ -8,8 +6,7 @@ if not sistema == ("Windows" or "Linux" or "Darwin"):   #Valida sistema
 
 def leArquivo(arquivo):                                     #Função para ler conteudo do arquivo e tratar os includes dele
     conteudoArquivo = arquivo.readlines()                   #Le conteudo
-    conteudoPreprocessado = preprocessa(conteudoArquivo)    #Pre-processa conteudo
-    return conteudoPreprocessado                            #Retorna conteudo tratado
+    return preprocessa(conteudoArquivo)    #Pre-processa e retorna conteudo
 
 def abreCompilador(nomeArquivo):
     if sistema == "Windows":
@@ -65,11 +62,9 @@ def resolveIncludeAspas(buffer):
 
 def resolveIncludeAngular(buffer):
     novoBuffer = []
-    print("teste")
     for include in includesAngulares:
         if include not in incluidos:
             incluidos.append(include)
-            print(include)
             try:
                 arquivo = abreCompilador(include)    
             except:
@@ -135,23 +130,18 @@ def trataDefine(codigo):
     return buffer                                                                          #retorna o código com as alterações
 
 def preprocessa(buffer):    #Função para pre-processar o codigo
+    
     buffer = listaIncludeAspas(buffer)
+
     buffer = listaIncludeAngular(buffer)
 
-    '''volta com \n mas no arquivo'''
     bufferStrings = []
-    def tiraStrings(linha):
+    def tiraStrings(linha):                                                 #Função para camuflar strings e não quebrar outras funções
         string = re.search("\".*\"", linha)
         if string:
             bufferStrings.append(string.group().replace("\\", "\\\\"))
         return re.sub("\".*\"", "#str"+str(len(bufferStrings)-1), linha)
     buffer = list(map(tiraStrings, buffer))
-
-    def tiraComentarioLinha(linha):     #Funcao para remover comentarios de linha
-        #Substitui comentario de linha por "" usando regex e retorna
-        return re.sub("//.*$", "\n", linha)
-    #Para cada linha, se a linha tem // valido(fora de "" validas), apaga conteudo até \n
-    #buffer = list(map(tiraComentarioLinha, buffer))   #Remove comentario do tipo "//" de cada linha
 
     '''Para cada linha do código, se a linha contem um define, caso o define seja uma função, irá remover as chaves, caso tenha, e depois irá percorrer o código novamente.
     Se Achar alguma ocorrência do define no código, irá pegar a expressão, substituir os valores nas variáveis, e então substituir a chamada do define pela expressão.
@@ -159,46 +149,63 @@ def preprocessa(buffer):    #Função para pre-processar o codigo
     Caso não seja uma função, apenas substituirá o valor onde houver a a chamada. Depois, adicionará a linha alterada no buffer.
     Após percorrer todo o código, retornará o buffer'''
 
-    #buffer = trataDefine(buffer)                       #Trata os Defines
+    buffer = trataDefine(buffer)                       #Trata os Defines
+
+    def tiraComentarioLinha(linha):     #Funcao para remover comentarios de linha
+        #Substitui comentario de linha por "" usando regex e retorna
+        return re.sub("//.*$", "\n", linha)
+    #Para cada linha, se a linha tem // valido(fora de "" validas), apaga conteudo até \n
+    buffer = list(map(tiraComentarioLinha, buffer))   #Remove comentario do tipo "//" de cada linha
+
+    apagarLinha = False
+    def tiraComentarioParagrafo(linha): #Funcao para remover comentarios de paragrafo
+        if apagarLinha:
+            fimComentario = re.seach("^.*\*/", linha)
+            if fimComentario:
+                linha = re.sub("^.*\*/", "", linha)
+                apagar = False#Era pra ser apagarLinha mas ta apontando erro
+            else:
+                linha = re.sub(".*", "", linha)
+        else:
+            inicioComentario = re.search("/\*.*$", linha)
+            if inicioComentario:
+                fimComentario = re.search("^.*\*/", inicioComentario.group())
+                if fimComentario:
+                    linha = re.sub("/\*.*\*/", "", linha)
+                else:
+                    apagar = True#Era pra ser apagarLinha mas ta apontando erro
+                    linha = re.sub("/\*.*$", "", linha)
+        return linha
+    #buffer = list(map(tiraComentarioParagrafo, buffer))  #Remove comentario do tipo "/*"
 
     def tiraEspacos(linha):     #Funcao para remover espaços não uteis
         #Substitui espaços não uteis por "" usando regex e retorna
         return re.sub("\s+(?=[-+*\/<>=,&|!(){}\[\];:])|(?<=[-+*\/<>=,&|!(){}\[\];:])\s+(?!=\\n)", "", linha)
     #Para cada linha, remove espaços em volta de caracteres especiais
-    #buffer = list(map(tiraEspacos, buffer))
+    buffer = list(map(tiraEspacos, buffer))
 
     def tiraTabulacoes(linha):
         return re.sub("\t", "\n", linha)
     #Para cada linha, remove tabulações
-    #buffer = list(map(tiraTabulacoes, buffer))
+    buffer = list(map(tiraTabulacoes, buffer))
     
-    def tiraComentarioParagrafo(linha): #Funcao para remover comentarios de paragrafo
-        return re.sub("/\*.*?\*/", "", linha)                                                         #Substitui comentario de paragrafo por "" usando regex e retorna
-    #'''LOGICA REMOVER /**/'''
-    #buffer = tiraComentarioParagrafo(''.join(buffer))  #Remove comentario do tipo "/*"
-    
+    def tiraQuebras(linha):     #Função para remover quebras de linha
+        #Substitui quebras de linha por "" usando regex e retorna
+        return re.sub("\\n", "", linha)
+    #Para cada linha, remove o ultimo "\n"
+    buffer = list(map(tiraQuebras, buffer))           #Remove "\n" de cada linha, defines ja estarão resolvidos
+
     def botaStrings(linha):
         string = re.search("(?<=#str)\d*", linha)
         if string:
             return re.sub("#str\d*", bufferStrings[int(string.group())], linha)
         return linha
     buffer = list(map(botaStrings, buffer))
-
-    #Para cada include com Aspas no arquivo, se o arquivo incluido existir e estiver na pasta, copia seu conteudo, se não estiver na pasta, procura no compilador, se o arquivo não existir, passa para o proximo.
-    #buffer = fazIncludeAspas(buffer)            #Includes ""
-
-    #Para cada include com Colchetes angulares no arquivo, se o arquivo incluido existir e estiver no compilador, copia seu conteudo, se o arquivo não existir, passa para o proximo.
-    #buffer = fazIncludeAngular(buffer)          #Includes <> 
-
-    def tiraQuebras(linha):     #Função para remover quebras de linha
-        #Substitui quebras de linha por "" usando regex e retorna
-        return re.sub("\\n$", "", linha)
-    #Para cada linha, remove o ultimo "\n"
-    #buffer = list(map(tiraQuebras, buffer))           #Remove "/n" de cada linha, defines ja estarão resolvidos
+    
     buffer = resolveIncludeAspas(buffer)
+
     buffer = resolveIncludeAngular(buffer)
-    includesAspas.clear()
-    includesAngulares.clear()
+
     bufferStrings.clear()                       #Limpa buffer de strings
     return buffer                               #Retorna conteudo após manipulação
 
@@ -206,8 +213,7 @@ os.system("mkdir backup")                               #Cria pasta de backup
 nomesArquivos = sys.argv                                #Acessa parametros passados
 nomesArquivos.pop(0)                                    #Remove primeiro parametro("processa.py")
 
-for nomeArquivo in nomesArquivos:                       #Faz o pre-processamento para cada arquivo passado por parametro. 
-    bufferIncludes.clear()                          #Limpa buffer de includes
+for nomeArquivo in nomesArquivos:                       #Faz o pre-processamento para cada arquivo passado por parametro.
     if sistema == "Windows":
         os.system("copy "+nomeArquivo+" backup")        #Faz Backup do arquivo em Windows
     else:
@@ -218,6 +224,9 @@ for nomeArquivo in nomesArquivos:                       #Faz o pre-processamento
         codigo = arquivo.readlines()                    #Pega o conteudo do arquivo
         arquivo.close()                                 #Fecha o arquivo
         codigo = preprocessa(codigo)                    #Faz o pre-processa do codigo
+        incluidos.clear()
+        includesAspas.clear()
+        includesAngulares.clear()
         arquivo = open(nomeArquivo, 'w')                #Abre arquivo para escrita
         arquivo.writelines(codigo)                      #Escreve o conteudo no arquivo
         arquivo.close()                                 #Fecha o arquivo
