@@ -35,7 +35,7 @@ def listaIncludeAspas(buffer):          #Função para gerar uma lista de includ
         return linha                                                            #Retorna linha modificada ou não modificada
     return list(map(encontra, buffer))                                          #Aplica a função encontra para cada linhado buffer e retorna
 
-includesAngulares = []  #Lista de includes de Aspas
+includesAngulares = []  #Lista de includes de Colchetes Angulares
 def listaIncludeAngular(buffer):        #Função para gerar uma lista de includes com aspas a partir do arquivo.
     def encontra(linha):                #Função para encontrar os includes no arquivo. Usada através do map.
         include = re.search("^\s*#\s*include\s*<.*\.[ch]>", linha)                    #Procura por um include
