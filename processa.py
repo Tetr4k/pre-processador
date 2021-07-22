@@ -26,24 +26,24 @@ def abreCompilador(nomeArquivo):        #Função para abrir arquivo na pasta do
 includesAspas = []      #Lista de includes de Aspas
 def listaIncludeAspas(buffer):          #Função para gerar uma lista de includes com aspas a partir do arquivo.
     def encontra(linha):                #Função para encontrar os includes no arquivo. Usada através do map.
-        include = re.search("^\s*#include\s*\".*\.[ch]\"", linha)                  #Procura por um include
+        include = re.search("^\s*#\s*include\s*\".*\.[ch]\"", linha)                  #Procura por um include
         if include:                                                             #Se encontrou
             nomeArquivo = re.search("(?<=\").*\.[ch](?=\")", include.group())   #Busca o arquivo a ser incluido
             if nomeArquivo.group() not in includesAspas:                        #Verifica se ja esta listado para ser incluido
                 includesAspas.append(nomeArquivo.group())                       #Caso não esteja listado para ser incluido, adiciona na lista
-            linha = re.sub("^\s*#include\s*\".*\.[ch]\"", "", linha)               #Remove o include da linha
+            linha = re.sub("^\s*#\s*include\s*\".*\.[ch]\"", "", linha)               #Remove o include da linha
         return linha                                                            #Retorna linha modificada ou não modificada
     return list(map(encontra, buffer))                                          #Aplica a função encontra para cada linhado buffer e retorna
 
 includesAngulares = []  #Lista de includes de Aspas
 def listaIncludeAngular(buffer):        #Função para gerar uma lista de includes com aspas a partir do arquivo.
     def encontra(linha):                #Função para encontrar os includes no arquivo. Usada através do map.
-        include = re.search("^\s*#include\s*<.*\.[ch]>", linha)                    #Procura por um include
+        include = re.search("^\s*#\s*include\s*<.*\.[ch]>", linha)                    #Procura por um include
         if include:                                                             #Se encontrou
             nomeArquivo = re.search("(?<=<).*\.[ch](?=>)", include.group())     #Busca o arquivo a ser incluido
             if nomeArquivo.group() not in includesAngulares:                    #Verifica se ja esta listado para ser incluido
                 includesAngulares.append(nomeArquivo.group())                   #Caso não esteja listado para ser incluido, adiciona na lista
-            linha = re.sub("^\s*#include\s*<.*\.[ch]>", "", linha)                 #Remove o include da linha
+            linha = re.sub("^\s*#\s*include\s*<.*\.[ch]>", "", linha)                 #Remove o include da linha
         return linha                                                            #Retorna linha modificada ou não modificada
     return list(map(encontra, buffer))                                          #Aplica a função encontra para cada linhado buffer e retorna
 
