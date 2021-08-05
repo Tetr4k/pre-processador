@@ -37,8 +37,12 @@ Os arquivos terão seus includes e defines resolvidos, comentarios, espaços e q
 * Resolve includes de Aspas;
 * Resolve includes de Colchetes angulares;
 
-### Erros pendentes:
+### Problemas pendentes:
 
+* Simplificar codigo;
+* Rever passos para o pre-processamento;
+* Juntar funções de includes para definir o caracter na chamada;
+* Refazer Funções de defines;
 * Resolver defines normais; (Erro no preprocessamento da leitura dos arquivos de includes -> Provavelmente erro com algo não previsto nos arquivos ".c" e ".h")
 * Resolver defines condicionais;
 
