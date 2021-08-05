@@ -30,7 +30,6 @@ Os arquivos terão seus includes e defines resolvidos, comentarios, espaços e q
 * Remove comentarios "//";
 * Remove comentarios "/**/";
 * Resolve defines;
-* Resolve defines condicionais;(FALTANDO)
 * Remove Espaços não uteis;
 * Remove Tabulações;
 * Remove quebras de linha.
@@ -40,7 +39,6 @@ Os arquivos terão seus includes e defines resolvidos, comentarios, espaços e q
 
 ### Erros pendentes:
 
-* Resolver erro com "tiraComentarioParagrafo()";
 * Resolver defines normais; (Erro no preprocessamento da leitura dos arquivos de includes -> Provavelmente erro com algo não previsto nos arquivos ".c" e ".h")
 * Resolver defines condicionais;
 
