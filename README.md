@@ -25,20 +25,14 @@ Os arquivos terão seus includes e defines resolvidos, comentarios, espaços e q
     1. Resolver Includes
     2. Resolver Defines
 * Esconder strings;
-* Remove comentarios "//";
-* Remove comentarios "/**/";
-* Remove Espaços não uteis;
-* Remove Tabulações;
-* Remove quebras de linha.
+* Remover comentarios;
+* Remover espaços desnecessarios e quebras de linha.
 
 ### Problemas pendentes:
 
 * Simplificar codigo;
-* Rever passos para o pre-processamento;
 * Juntar funções de includes para definir o caracter na chamada;
-* Refazer Funções de defines;
-* Resolver defines normais; (Erro no preprocessamento da leitura dos arquivos de includes -> Provavelmente erro com algo não previsto nos arquivos ".c" e ".h")
-* Resolver defines condicionais;
+* Refazer funções de resolução dos defines.
 
 ### Fontes e Utilidades:
 
