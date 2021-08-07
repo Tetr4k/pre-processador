@@ -1,10 +1,7 @@
 # Pre-processador
 ## Trabalho 2 de Linguagens de programação
 
-### O que é esse repositorio?
-
-Esse repositorio é usado para controle de versão de uma implementação do exercicio 6 do arquivo Trabalhos.pdf, um trabalho avaliado de Linguagens de Programação do curso de Ciência da Computação na UFF-PURO.
-O programa implementado trata-se de um pre-processador para um programa em C/C++.
+Este repositorio é a continuação de um pre-processador para C, um exercicio avaliado em Linguagens de Programação do curso de Ciência da Computação na UFF-PURO no periodo remoto de 2021-1.
 
 ### Requisitos:
 
@@ -14,7 +11,7 @@ O programa prevê que o compilador estara instalado em "C:" no windows, e em "/u
 
 ### Como utilizar?
 
-Devem ser passados por parametro os arquivos C/C++ que serão pre-processados:
+Devem ser passados por parametro os arquivos C que serão pre-processados:
 
 ```
     py processa.py (Arquivo 1) [(Arquivo 2), ..., (Arquivo N)]
@@ -45,12 +42,6 @@ Os arquivos terão seus includes e defines resolvidos, comentarios, espaços e q
 
 ### Fontes e Utilidades:
 
-Estamos implementando nosso pre-processador baseado nas regras de pre-processamento do site:
+Estamos implementando nosso pre-processador baseado nas regras de pre-processamento [deste site](https://www.cprogramming.com/tutorial/cpreprocessor.html)
 
-[Site Cprogramming](https://www.cprogramming.com/tutorial/cpreprocessor.html)
-
-Estamos ordenando as resoluções dos includes a partir das informações cedidas na documentação da [Microsoft](https://docs.microsoft.com/pt-br/cpp/preprocessor/hash-include-directive-c-cpp?view=msvc-160)
-
-Estamos testando nossas expressões regulares no site [Regex101](https://regex101.com/)
-
-O arquivo PDF desse trabalho esta disponivel no site do professor [Bazilio](http://www2.ic.uff.br/~bazilio/cursos/lp/material/Trabalhos.pdf)
+Estamos testando nossas expressões regulares [neste site](https://regex101.com/)
