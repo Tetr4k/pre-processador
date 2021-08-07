@@ -90,12 +90,6 @@ def resolveIncludeAngular(buffer):      #Função para resolver includes com Col
 '''
 
 '''
-    
-
-    def tiraComentarioLinha(linha):     #Funcao para remover comentarios de linha
-        return re.sub("//.*$", "\n", linha) #Substitui comentario de linha por "" usando regex e retorna
-    buffer = list(map(tiraComentarioLinha, buffer))   #Para cada linha, se a linha tem // valido(fora de "" validas), apaga conteudo até \n
-
     global apagarLinha
     apagarLinha = False
     def tiraComentarioParagrafo(linha): #Funcao para remover comentarios de paragrafo
@@ -118,19 +112,6 @@ def resolveIncludeAngular(buffer):      #Função para resolver includes com Col
                     linha = re.sub("/\*.*$", "", linha)
         return linha
     buffer = list(map(tiraComentarioParagrafo, buffer))  #Remove comentario do tipo "/*"
-
-    def tiraEspacos(linha):     #Funcao para remover espaços não uteis
-        return re.sub("\s+(?=[-+*\/<>=,&|!(){}\[\];:])|(?<=[-+*\/<>=,&|!(){}\[\];:])\s+(?!=\\n)", "", linha)#Substitui espaços não uteis por "" usando regex e retorna
-    buffer = list(map(tiraEspacos, buffer))#Para cada linha, remove espaços em volta de caracteres especiais
-
-    def tiraTabulacoes(linha):
-        return re.sub("\t", "\n", linha)
-    buffer = list(map(tiraTabulacoes, buffer))#Para cada linha, remove tabulações
-    
-    def tiraQuebras(linha):     #Função para remover quebras de linha
-        #Substitui quebras de linha por "" usando regex e retorna
-        return re.sub("\\n", "", linha)
-    buffer = list(map(tiraQuebras, buffer))           #Para cada linha, remove o ultimo "\n"
 '''
 
 def mascaraStrings(linha): #Função para camuflar strings e não quebrar outras funções
@@ -140,6 +121,7 @@ def mascaraStrings(linha): #Função para camuflar strings e não quebrar outras
         strings.append(resultado.group().replace("\\", "\\\\"))
         linha = re.sub(resultado.group(), "#str"+str(len(strings)-1), linha)
         resultado = re.search("\"([^\"\\\n]|\\.)*\"", linha)
+    print(strings)
     return linha, strings
 
 def desmascaraStrings(linha, strings):
@@ -149,13 +131,18 @@ def desmascaraStrings(linha, strings):
         resultado = re.search("(?<=#str)\d*", linha)
     return linha
 
+def tiraComentarioLinha(linha):     #Funcao para remover comentarios de linha
+    return re.sub("//.*$", "\n", linha) #Substitui comentario de linha por "" usando regex e retorna
+
+def tiraCaracteres(linha):     #Funcao para remover espaços não uteis
+    return re.sub("^[\s\\t]*|\\n$|\s+(?=[-+*\/<>=,&|!(){}\[\];:])|(?<=[-+*\/<>=,&|!(){}\[\];:])\s+(?!=\\n)", "", linha)#Substitui espaços não uteis por "" usando regex e retorna
+
 def processaLinha(linha):
     linha, strings = mascaraStrings(linha)
-
-    
-    linha= desmascaraStrings(linha, strings)
+    linha = tiraComentarioLinha(linha)
+    linha = tiraCaracteres(linha)
+    linha = desmascaraStrings(linha, strings)
     return linha
-
 
 def preprocessa(buffer):                #Função para pre-processar o codigo
     #buffer, diretivas = mapeiaDiretivas(buffer)    #Percorrer arquivo mapeando diretivas
