@@ -24,18 +24,15 @@ Os arquivos terão seus includes e defines resolvidos, comentarios, espaços e q
 
 ### Passos para o pre-processamento:
 
-* Mapeia Includes de Aspas
-* Mapeia Includes de Colchetes Angulares
-* Cria mascara sobre strings;
+* Mapear Diretivas
+    1. Resolver Includes
+    2. Resolver Defines
+* Esconder strings;
 * Remove comentarios "//";
 * Remove comentarios "/**/";
-* Resolve defines;
 * Remove Espaços não uteis;
 * Remove Tabulações;
 * Remove quebras de linha.
-* Resolve mascara sobre strings;
-* Resolve includes de Aspas;
-* Resolve includes de Colchetes angulares;
 
 ### Problemas pendentes:
 
