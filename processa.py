@@ -131,13 +131,6 @@ def resolveIncludeAngular(buffer):      #Função para resolver includes com Col
         #Substitui quebras de linha por "" usando regex e retorna
         return re.sub("\\n", "", linha)
     buffer = list(map(tiraQuebras, buffer))           #Para cada linha, remove o ultimo "\n"
-
-    def desmascaraStrings(linha):
-        string = re.search("(?<=#str)\d*", linha)
-        if string:
-            return re.sub("#str\d*", bufferStrings[int(string.group())], linha)
-        return linha
-    buffer = list(map(desmascaraStrings, buffer))
 '''
 
 def mascaraStrings(linha): #Função para camuflar strings e não quebrar outras funções
@@ -149,11 +142,18 @@ def mascaraStrings(linha): #Função para camuflar strings e não quebrar outras
         resultado = re.search("\"([^\"\\\n]|\\.)*\"", linha)
     return linha, strings
 
+def desmascaraStrings(linha, strings):
+    resultado = re.search("(?<=#str)\d*", linha)
+    while resultado:
+        linha = re.sub("#str"+resultado.group(), strings[int(resultado.group())], linha)
+        resultado = re.search("(?<=#str)\d*", linha)
+    return linha
+
 def processaLinha(linha):
     linha, strings = mascaraStrings(linha)
 
     
-    #linha= desmascaraStrings(linha, strings)
+    linha= desmascaraStrings(linha, strings)
     return linha
 
 
