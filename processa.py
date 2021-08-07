@@ -89,14 +89,8 @@ def resolveIncludeAngular(buffer):      #Função para resolver includes com Col
     return novoBuffer                                                   #Retorna o novo codigo
 '''
 
-def preprocessa(buffer):                #Função para pre-processar o codigo
-    bufferStrings = []
-    def mascaraStrings(linha): #Função para camuflar strings e não quebrar outras funções
-        string = re.search("\".*\"", linha)
-        if string:
-            bufferStrings.append(string.group().replace("\\", "\\\\"))
-        return re.sub("\".*\"", "#str"+str(len(bufferStrings)-1), linha)
-    buffer = list(map(mascaraStrings, buffer))
+'''
+    
 
     def tiraComentarioLinha(linha):     #Funcao para remover comentarios de linha
         return re.sub("//.*$", "\n", linha) #Substitui comentario de linha por "" usando regex e retorna
@@ -144,13 +138,36 @@ def preprocessa(buffer):                #Função para pre-processar o codigo
             return re.sub("#str\d*", bufferStrings[int(string.group())], linha)
         return linha
     buffer = list(map(desmascaraStrings, buffer))
+'''
+
+def mascaraStrings(linha): #Função para camuflar strings e não quebrar outras funções
+    strings = []
+    resultado = re.search("\"([^\"\\\n]|\\.)*\"", linha)
+    while resultado:
+        strings.append(resultado.group().replace("\\", "\\\\"))
+        linha = re.sub(resultado.group(), "#str"+str(len(strings)-1), linha)
+        resultado = re.search("\"([^\"\\\n]|\\.)*\"", linha)
+    return linha, strings
+
+def processaLinha(linha):
+    linha, strings = mascaraStrings(linha)
+
+    
+    #linha= desmascaraStrings(linha, strings)
+    return linha
+
+
+def preprocessa(buffer):                #Função para pre-processar o codigo
+    #buffer, diretivas = mapeiaDiretivas(buffer)    #Percorrer arquivo mapeando diretivas
+    #buffer = resolveIncludes(buffer, diretivas)    #Resolver Includes
+    buffer = list(map(processaLinha, buffer))      #Percorrer arquivo resolvendo, para cada linha, os defines, comentarios e quebras de espaço
     return buffer                               #Retorna conteudo após manipulação
 
 os.system("mkdir backup")                               #Cria pasta de backup
 nomesArquivos = sys.argv                                #Acessa parametros passados
 nomesArquivos.pop(0)                                    #Remove primeiro parametro("processa.py")
 
-for nomeArquivo in nomesArquivos:                       #Faz o pre-processamento para cada arquivo passado por parametro.
+for nomeArquivo in nomesArquivos:                       #Faz o pre-processamento para caa darquivo passado por parametro.
     if sistema == "Windows":
         os.system("copy "+nomeArquivo+" backup")        #Faz Backup do arquivo em Windows
     else:
