@@ -31,6 +31,7 @@ Os arquivos terão seus includes e defines resolvidos, comentarios, espaços e q
 ### Problemas pendentes:
 
 * Simplificar codigo;
+* Erro loop infinito mascara de strings;
 * Erro ao mascarar e desmascarar o seguinte conteudo: concat("#str1", "bbbbbb");
 * Juntar funções de includes para definir o caracter na chamada;
 * Refazer funções de resolução dos defines.
