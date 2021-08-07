@@ -87,58 +87,6 @@ def resolveIncludeAngular(buffer):      #Função para resolver includes com Col
     novoBuffer.extend(buffer)                                           #Adiciona o conteudo no inicio do codigo
     return novoBuffer                                                   #Retorna o novo codigo
 
-def trataDefine(codigo):                #
-    #Ver quais são os defines
-    #jogar instruções de define em um vetor
-
-    #Para cada instrução no vetor
-    #percorre o codigo substituindo
-    defines = []
-    buffer = []
-    for linha in codigo:
-        define = re.search("#define\s*.*\s*(?=(\n|//|/*))", linha)                                 #Expressão regular para verificar se tem define na linha
-
-        #if define:
-        #    linha = re.sub("#define\s*.*\s*(?=(\n|//|/*))", "", linha)
-        if define and define.group() == linha:                                                  #Se tiver define na linha e for valido
-            conteudoDefine = re.search("(?<=\s).*$", define.group())                             #Pega o conteúdo do define (nome e valor)
-            nomeDefine = re.search(".*(?=\s)", conteudoDefine.group())                           #Pega o nome do define
-            if nomeDefine and "(" in nomeDefine.group() and ")" in nomeDefine.group():                            #Se define for Macro
-                valorDefine = re.search("(?<=\)\s).*", conteudoDefine.group())
-                if "{" in valorDefine.group() and "}" in valorDefine.group():                                          #Se tiver chaves
-                    valorFuncDefine = re.search("(?<={).*(?=})", valorDefine.group())           #Tira chaves
-                else:
-                    valorFuncDefine = valorDefine
-                nomeDefineSemParametro = re.search(".*(?=\()", nomeDefine.group())                      #Pega apenas o nome da função sem os parametros
-                parametros = re.search("(?<=\().*(?=\))", conteudoDefine.group())                          #Pega apenas a parte de dentro dos parênteses da função define
-                parametros = parametros.group().replace(" ", "")
-                parametros = parametros.split(",")
-                defines.append([nomeDefineSemParametro.group(), valorFuncDefine.group(), parametros])    
-            else:                                                                               #Se não for função (não tem parênteses)
-                valorDefine = re.search("(?<=\s).*", conteudoDefine.group())                             #Pega o valor do define
-                defines.append([nomeDefine.group(), valorDefine.group()])
-    while codigo:
-        linha = codigo[0]
-        codigo.pop(0)
-        for define in defines:
-            nome = re.search("(?<=[^a-zA-Z0-9])"+define[0]+"(?=[^a-zA-Z0-9])", linha)
-            if nome:
-                if len(define) == 2:
-                    linha = linha.replace(define[0], define[1])
-                elif len(define) == 3:
-                    valorParametros = re.search("(?<=[\W\D])"+define[0]+"\(.*,.*\)", linha)
-                    valorParametros = re.search("(?<=\().*(?=\))", valorParametros.group())
-                    valorParametros = valorParametros.group().replace(" ", "")
-                    valorParametros = valorParametros.split(",")
-                    funcaoComValores = define[1]
-                    for i in range(len(valorParametros)):
-                        funcaoComValores = funcaoComValores.replace(define[2][i], valorParametros[i])
-                    linha = linha.replace(re.search(define[0]+"\(.*,.*\)", linha).group(), funcaoComValores)
-                break
-        if not "define" in linha:
-            buffer.append(linha)
-    return buffer                                                                          #retorna o código com as alterações
-
 def preprocessa(buffer):                #Função para pre-processar o codigo
     #buffer = fazIncludes(buffer)#Todos os includes feitos
 
@@ -180,13 +128,6 @@ def preprocessa(buffer):                #Função para pre-processar o codigo
                     linha = re.sub("/\*.*$", "", linha)
         return linha
     buffer = list(map(tiraComentarioParagrafo, buffer))  #Remove comentario do tipo "/*"
-
-    '''Para cada linha do código, se a linha contem um define, caso o define seja uma função, irá remover as chaves, caso tenha, e depois irá percorrer o código novamente.
-    Se Achar alguma ocorrência do define no código, irá pegar a expressão, substituir os valores nas variáveis, e então substituir a chamada do define pela expressão.
-    Depois, adicionará a linha em um buffer, que posteriormente será retornado.
-    Caso não seja uma função, apenas substituirá o valor onde houver a a chamada. Depois, adicionará a linha alterada no buffer.
-    Após percorrer todo o código, retornará o buffer'''
-    buffer = trataDefine(buffer)                       #Trata os Defines
 
     def tiraEspacos(linha):     #Funcao para remover espaços não uteis
         return re.sub("\s+(?=[-+*\/<>=,&|!(){}\[\];:])|(?<=[-+*\/<>=,&|!(){}\[\];:])\s+(?!=\\n)", "", linha)#Substitui espaços não uteis por "" usando regex e retorna
