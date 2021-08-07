@@ -6,6 +6,7 @@ if not sistema == ("Windows" or "Linux" or "Darwin"):   #Valida sistema
     print("O sistema", sistema, "não é reconhecido.")
     exit()
 
+'''
 def fazIncludes(buffer):                #Função para fazer todos os includes
     buffer = listaIncludeAspas(buffer)
     buffer = listaIncludeAngular(buffer)
@@ -86,14 +87,9 @@ def resolveIncludeAngular(buffer):      #Função para resolver includes com Col
                 novoBuffer.append(linha)                                #Copia conteudo do include para o buffer
     novoBuffer.extend(buffer)                                           #Adiciona o conteudo no inicio do codigo
     return novoBuffer                                                   #Retorna o novo codigo
+'''
 
 def preprocessa(buffer):                #Função para pre-processar o codigo
-    #buffer = fazIncludes(buffer)#Todos os includes feitos
-
-    buffer = listaIncludeAspas(buffer)
-
-    buffer = listaIncludeAngular(buffer)
-
     bufferStrings = []
     def mascaraStrings(linha): #Função para camuflar strings e não quebrar outras funções
         string = re.search("\".*\"", linha)
@@ -148,11 +144,6 @@ def preprocessa(buffer):                #Função para pre-processar o codigo
             return re.sub("#str\d*", bufferStrings[int(string.group())], linha)
         return linha
     buffer = list(map(desmascaraStrings, buffer))
-    
-    buffer = resolveIncludeAspas(buffer)
-
-    buffer = resolveIncludeAngular(buffer)
-
     return buffer                               #Retorna conteudo após manipulação
 
 os.system("mkdir backup")                               #Cria pasta de backup
@@ -170,9 +161,6 @@ for nomeArquivo in nomesArquivos:                       #Faz o pre-processamento
         codigo = arquivo.readlines()                    #Pega o conteudo do arquivo
         arquivo.close()                                 #Fecha o arquivo
         codigo = preprocessa(codigo)                    #Faz o pre-processa do codigo
-        incluidos.clear()                               #Limpa lista de arquivos incluidos
-        includesAspas.clear()                           #Limpa lista de includes de Aspas
-        includesAngulares.clear()                       #Limpa lista de includes de Colchetes Angulares
         arquivo = open(nomeArquivo, 'w')                #Abre arquivo para escrita
         arquivo.writelines(codigo)                      #Escreve o conteudo no arquivo
         arquivo.close()                                 #Fecha o arquivo
